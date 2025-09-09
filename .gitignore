@@ -105,6 +105,8 @@ out/
 *.db
 *.trace.db
 *.lock.db
+data/*
+!data/.gitkeep
 
 # OS generated files
 .DS_Store
