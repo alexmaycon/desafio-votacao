@@ -16,8 +16,13 @@
     <version>1.0.0</version>
     <name>voting-system-api</name>
     <description>Voting System API</description>
-    <author>Alex Maycon da Silva</author>
-    
+    <developers>
+        <developer>
+            <id>alexmaycon</id>
+            <name>Alex Maycon da Silva</name>
+        </developer>
+    </developers>
+
     <properties>
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
