@@ -2,6 +2,7 @@ package com.voting.system.api.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.voting.system.api.constants.OpenAPIConstants;
+import com.voting.system.api.model.enums.AssociateStatusEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -25,6 +26,9 @@ public class AssociateResponseDTO {
     @JsonProperty(OpenAPIConstants.IS_ACTIVE)
     @Schema(description = OpenAPIConstants.IS_ACTIVE_TITLE, example = "true")
     private Boolean isActive;
+    
+    @Schema(description = "Status do associado para votação", example = "ABLE_TO_VOTE")
+    private AssociateStatusEnum status;
     
     @Schema(description = "Data de criação do registro", example = "2025-09-09T10:00:00-03:00")
     private OffsetDateTime dtCreated;

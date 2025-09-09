@@ -42,7 +42,7 @@ public class AssociateService implements IAssociateService {
         associate.setIsActive(true);
         
         Associate savedAssociate = associateRepository.save(associate);
-        return modelMapper.map(savedAssociate, AssociateResponseDTO.class);
+        return mapToResponseDTO(savedAssociate);
     }
 
     @Override
@@ -51,21 +51,21 @@ public class AssociateService implements IAssociateService {
         Associate associate = associateRepository.findByIdAndIsActiveTrue(id)
             .orElseThrow(() -> new ResourceNotFoundException("Associado", id));
         
-        return modelMapper.map(associate, AssociateResponseDTO.class);
+        return mapToResponseDTO(associate);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<AssociateResponseDTO> findAll(Pageable pageable) {
         Page<Associate> associates = associateRepository.findByIsActiveTrue(pageable);
-        return associates.map(associate -> modelMapper.map(associate, AssociateResponseDTO.class));
+        return associates.map(this::mapToResponseDTO);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<AssociateResponseDTO> findByName(String name, Pageable pageable) {
         Page<Associate> associates = associateRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(name, pageable);
-        return associates.map(associate -> modelMapper.map(associate, AssociateResponseDTO.class));
+        return associates.map(this::mapToResponseDTO);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class AssociateService implements IAssociateService {
         Associate associate = associateRepository.findByCpfAndIsActiveTrue(cpf)
             .orElseThrow(() -> new ResourceNotFoundException("Associado com CPF " + cpf + " não encontrado"));
         
-        return modelMapper.map(associate, AssociateResponseDTO.class);
+        return mapToResponseDTO(associate);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class AssociateService implements IAssociateService {
         existingAssociate.setCpf(requestDTO.getCpf());
         
         Associate updatedAssociate = associateRepository.save(existingAssociate);
-        return modelMapper.map(updatedAssociate, AssociateResponseDTO.class);
+        return mapToResponseDTO(updatedAssociate);
     }
 
     @Override
@@ -115,5 +115,11 @@ public class AssociateService implements IAssociateService {
         
         associate.setIsActive(false);
         associateRepository.save(associate);
+    }
+    
+    private AssociateResponseDTO mapToResponseDTO(Associate associate) {
+        AssociateResponseDTO responseDTO = modelMapper.map(associate, AssociateResponseDTO.class);
+        responseDTO.setStatus(associate.getStatus());
+        return responseDTO;
     }
 }

@@ -9,6 +9,7 @@ import com.voting.system.api.model.entity.Associate;
 import com.voting.system.api.model.entity.Vote;
 import com.voting.system.api.model.entity.VoteValue;
 import com.voting.system.api.model.entity.VotingSession;
+import com.voting.system.api.model.enums.AssociateStatusEnum;
 import com.voting.system.api.model.enums.VotingSessionStatusEnum;
 import com.voting.system.api.model.validation.ICreateValidationGroup;
 import com.voting.system.api.repository.AssociateRepository;
@@ -54,6 +55,10 @@ public class VoteService implements IVoteService {
         
         Associate associate = associateRepository.findByIdAndIsActiveTrue(requestDTO.getAssociateId())
             .orElseThrow(() -> new ResourceNotFoundException("Associado", requestDTO.getAssociateId()));
+        
+        if (associate.getStatus() == AssociateStatusEnum.UNABLE_TO_VOTE) {
+            throw new VoteException("Associado não habilitado para votar no momento");
+        }
         
         if (voteRepository.existsByVotingSessionIdAndAssociateId(requestDTO.getVotingSessionId(), requestDTO.getAssociateId())) {
             throw new VoteException("Associado já votou nesta sessão");
