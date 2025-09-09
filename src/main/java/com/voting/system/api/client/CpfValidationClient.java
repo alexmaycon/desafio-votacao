@@ -51,7 +51,7 @@ public class CpfValidationClient {
             return new CpfValidationResponseDTO(cpf, false, null, "INVALID", "Invalid CPF format");
         }
 
-        boolean isValidCpf = !cpf.equals("00000000000") && !cpf.equals("11111111111");
+        boolean isValidCpf = isValidCpf(cpf);
         
         return new CpfValidationResponseDTO(
                 cpf, 
@@ -60,6 +60,43 @@ public class CpfValidationClient {
                 isValidCpf ? "ACTIVE" : "INVALID",
                 isValidCpf ? "CPF is valid" : "CPF is invalid"
         );
+    }
+
+    private boolean isValidCpf(String cpf) {
+        if (cpf == null || !cpf.matches("\\d{11}")) {
+            return false;
+        }
+
+        if (cpf.matches("(\\d)\\1{10}")) {
+            return false;
+        }
+
+        try {
+            int[] digits = cpf.chars().map(c -> c - '0').toArray();
+
+            int sum1 = 0;
+            for (int i = 0; i < 9; i++) {
+                sum1 += digits[i] * (10 - i);
+            }
+            int firstDigit = 11 - (sum1 % 11);
+            if (firstDigit >= 10) {
+                firstDigit = 0;
+            }
+
+            int sum2 = 0;
+            for (int i = 0; i < 10; i++) {
+                sum2 += digits[i] * (11 - i);
+            }
+            int secondDigit = 11 - (sum2 % 11);
+            if (secondDigit >= 10) {
+                secondDigit = 0;
+            }
+
+            return digits[9] == firstDigit && digits[10] == secondDigit;
+
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private CpfValidationResponseDTO createFallbackResponse(String cpf, String errorMessage) {
