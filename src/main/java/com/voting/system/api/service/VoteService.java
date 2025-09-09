@@ -72,20 +72,14 @@ public class VoteService implements IVoteService {
         
         Vote savedVote = voteRepository.save(vote);
         
-        VoteResponseDTO responseDTO = modelMapper.map(savedVote, VoteResponseDTO.class);
-        responseDTO.setAssociateName(associate.getName());
-        return responseDTO;
+        return mapToResponseDTO(savedVote);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<VoteResponseDTO> findByVotingSessionId(Long votingSessionId, Pageable pageable) {
         Page<Vote> votes = voteRepository.findByVotingSessionIdOrderByVoteTimeDesc(votingSessionId, pageable);
-        return votes.map(vote -> {
-            VoteResponseDTO dto = modelMapper.map(vote, VoteResponseDTO.class);
-            dto.setAssociateName(vote.getAssociate().getName());
-            return dto;
-        });
+        return votes.map(this::mapToResponseDTO);
     }
 
     @Override
@@ -116,5 +110,13 @@ public class VoteService implements IVoteService {
     @Transactional(readOnly = true)
     public boolean hasAssociateVoted(Long votingSessionId, Long associateId) {
         return voteRepository.existsByVotingSessionIdAndAssociateId(votingSessionId, associateId);
+    }
+    
+    private VoteResponseDTO mapToResponseDTO(Vote vote) {
+        VoteResponseDTO responseDTO = modelMapper.map(vote, VoteResponseDTO.class);
+        responseDTO.setVotingSessionId(vote.getVotingSession().getId());
+        responseDTO.setAssociateId(vote.getAssociate().getId());
+        responseDTO.setAssociateName(vote.getAssociate().getName());
+        return responseDTO;
     }
 }
