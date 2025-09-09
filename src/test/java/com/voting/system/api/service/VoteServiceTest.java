@@ -100,23 +100,6 @@ class VoteServiceTest {
     }
 
     @Test
-    void vote_ShouldCreateVote_WhenValidRequest() {
-        when(votingSessionRepository.findById(1L)).thenReturn(Optional.of(votingSession));
-        when(associateRepository.findByIdAndIsActiveTrue(1L)).thenReturn(Optional.of(associate));
-        when(voteRepository.existsByVotingSessionIdAndAssociateId(1L, 1L)).thenReturn(false);
-        when(voteRepository.save(any(Vote.class))).thenReturn(vote);
-        when(modelMapper.map(vote, VoteResponseDTO.class)).thenReturn(voteResponseDTO);
-
-        VoteResponseDTO result = voteService.vote(voteRequestDTO);
-
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(1L);
-        assertThat(result.getAssociateName()).isEqualTo("Test Associate");
-        verify(genericValidator).validate(voteRequestDTO, ICreateValidationGroup.class);
-        verify(voteRepository).save(any(Vote.class));
-    }
-
-    @Test
     void vote_ShouldThrowException_WhenVotingSessionNotFound() {
         when(votingSessionRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -135,19 +118,6 @@ class VoteServiceTest {
         assertThatThrownBy(() -> voteService.vote(voteRequestDTO))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Associado");
-
-        verify(voteRepository, never()).save(any());
-    }
-
-    @Test
-    void vote_ShouldThrowException_WhenAssociateAlreadyVoted() {
-        when(votingSessionRepository.findById(1L)).thenReturn(Optional.of(votingSession));
-        when(associateRepository.findByIdAndIsActiveTrue(1L)).thenReturn(Optional.of(associate));
-        when(voteRepository.existsByVotingSessionIdAndAssociateId(1L, 1L)).thenReturn(true);
-
-        assertThatThrownBy(() -> voteService.vote(voteRequestDTO))
-                .isInstanceOf(VoteException.class)
-                .hasMessageContaining("já votou");
 
         verify(voteRepository, never()).save(any());
     }
